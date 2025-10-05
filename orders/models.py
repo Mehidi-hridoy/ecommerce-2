@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 User = get_user_model()
 
 class Order(models.Model):
@@ -40,3 +41,5 @@ class POSSession(models.Model):  # POS Management
 
     def __str__(self):
         return f"POS Session by {self.cashier.username}"
+    
+
