@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <!-- Product Image & Main Info -->
+        <div class="col-md-6">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 500px; object-fit: cover;">
+            {% else %}
+            <img src="{% static 'no-image.png' %}" class="img-fluid rounded" alt="No Image" style="max-height: 500px;">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1 class="mb-3">{{ product.name }}</h1>
+            <p class="text-muted">{{ product.category.name }} | {{ product.brand.name|default:"No Brand" }}</p>
+            <h3 class="text-primary mb-3">${{ product.price }}</h3>
+            
+            <!-- Stock Badge -->
+            {% if stock > 0 %}
+                <span class="badge bg-success fs-6 mb-3">In Stock: {{ stock }}</span>
+            {% elif stock <= low_stock_threshold %}
+                <span class="badge bg-warning fs-6 mb-3">Low Stock: {{ stock }}</span>
+            {% else %}
+                <span class="badge bg-danger fs-6 mb-3">Out of Stock</span>
+            {% endif %}
+            
+            <!-- Attributes -->
+            {% if product.attributes.exists %}
+            <div class="mb-3">
+                <h5>Attributes</h5>
+                <ul class="list-unstyled">
+                    {% for attr in product.attributes.all %}
+                    <li><strong>{{ attr.name }}:</strong> {{ attr.value }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Description -->
+            <p class="mb-4">{{ product.description|linebreaks }}</p>
+            
+            <!-- Add to Cart Button (Placeholder) -->
+            <a href="#" class="btn btn-primary btn-lg">Add to Cart</a>
+            <a href="{% url 'home' %}" class="btn btn-secondary btn-lg ms-2">Back to Shop</a>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">Related Products</h3>
+        </div>
+        {% for rel_product in related_products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                {% if rel_product.image %}
+                <a href="{% url 'products:product_detail' rel_product.slug %}">
+                    <img src="{{ rel_product.image.url }}" class="card-img-top" alt="{{ rel_product.name }}" style="height: 200px; object-fit: cover;">
+                </a>
+                {% endif %}
+                <div class="card-body">
+                    <h6><a href="{% url 'products:product_detail' rel_product.slug %}" class="text-decoration-none">{{ rel_product.name|truncatewords:3 }}</a></h6>
+                    <h5 class="text-primary">${{ rel_product.price }}</h5>
+                    <a href="{% url 'products:product_detail' rel_product.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12"><p>No related products.</p></div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,11 +1,186 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Home - Ecommerce{% endblock %}
+{% block title %}E-Commerce Shop - Browse Products{% endblock %}
 
 {% block content %}
-<div class="text-center my-5">
-    <h1 class="display-4 fw-bold">Welcome to Ecommerce Platform 🛒</h1>
-    <p class="lead text-muted">Browse products, manage your orders, and enjoy seamless shopping.</p>
-    <a href="#" class="btn btn-primary btn-lg mt-3">Shop Now</a>
+<!-- Hero Banner -->
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold mb-3">Welcome to E-Commerce Platform 🛒</h1>
+        <p class="lead mb-4">Discover amazing products across categories. Shop now and enjoy seamless delivery!</p>
+        <a href="#products" class="btn btn-light btn-lg">Shop Now</a>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="container my-4">
+    <form method="GET" class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="Search products..." value="{{ search_query }}">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Categories Sidebar + Products Grid -->
+<div class="container my-4">
+    <div class="row">
+        <!-- Categories Sidebar (Left, Collapsible on Mobile) -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Categories</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="{% url 'core:home' %}" class="text-decoration-none {% if not selected_category %}active fw-bold{% endif %}">All</a>
+                        ({{ total_products }})
+                    </li>
+                    {% for category in categories %}
+                    <li class="list-group-item">
+                        <a href="?category={{ category.slug }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="text-decoration-none {% if selected_category.slug == category.slug %}active fw-bold{% endif %}">
+                            {{ category.name }}
+                        </a>
+                        ({{ category.products.count }})
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Products Grid -->
+        <div class="col-lg-9">
+            <!-- Featured Products (Top 4) -->
+            {% if featured_products %}
+            <div class="row mb-4" id="featured">
+                <div class="col-12">
+                    <h5 class="mb-3">Featured Products</h5>
+                </div>
+                {% for product in featured_products %}
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100">
+                        {% if product.image != '/static/no-image.png' %}
+                        {% if product.slug %}
+                        <a href="{% url 'products:product_detail' product.slug %}">
+                            <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        </a>
+                        {% else %}
+                        <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        {% else %}
+                        <img src="{% static 'no-image.png' %}" class="card-img-top" alt="No Image" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                {% if product.slug %}
+                                <a href="{% url 'products:product_detail' product.slug %}" class="text-decoration-none">{{ product.name|truncatewords:3 }}</a>
+                                {% else %}
+                                {{ product.name|truncatewords:3 }}
+                                {% endif %}
+                            </h6>
+                            <p class="text-muted small">{{ product.category }} | {{ product.attributes|truncatewords:3 }}</p>
+                            <h5 class="text-primary">${{ product.price }}</h5>
+                            {% if product.stock > 0 %}
+                                <span class="badge bg-success mb-2">In Stock: {{ product.stock }}</span>
+                            {% elif product.low_stock %}
+                                <span class="badge bg-warning mb-2">Low Stock: {{ product.stock }}</span>
+                            {% else %}
+                                <span class="badge bg-danger mb-2">Out of Stock</span>
+                            {% endif %}
+                            <a href="#" class="btn btn-primary btn-sm">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- All Products Grid -->
+            <div id="products">
+                <h5 class="mb-3">All Products ({{ total_products }} Total)</h5>
+                {% if products %}
+                <div class="row">
+                    {% for product in products %}
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="card h-100">
+                            {% if product.image != '/static/no-image.png' %}
+                            {% if product.slug %}
+                            <a href="{% url 'products:product_detail' product.slug %}">
+                                <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+                            </a>
+                            {% else %}
+                            <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+                            {% endif %}
+                            {% else %}
+                            <img src="{% static 'no-image.png' %}" class="card-img-top" alt="No Image" style="height: 250px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    {% if product.slug %}
+                                    <a href="{% url 'products:product_detail' product.slug %}" class="text-decoration-none">{{ product.name|truncatewords:4 }}</a>
+                                    {% else %}
+                                    {{ product.name|truncatewords:4 }}
+                                    {% endif %}
+                                </h6>
+                                <p class="text-muted small">{{ product.category }} | {{ product.attributes|truncatewords:3 }}</p>
+                                <h5 class="text-primary">${{ product.price }}</h5>
+                                {% if product.stock > 0 %}
+                                    <span class="badge bg-success">In Stock: {{ product.stock }}</span>
+                                {% elif product.low_stock %}
+                                    <span class="badge bg-warning">Low Stock: {{ product.stock }}</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                {% endif %}
+                                <a href="#" class="btn btn-primary btn-sm mt-2">Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if products_page.has_other_pages %}
+                <nav aria-label="Product pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if products_page.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ products_page.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}">Previous</a></li>
+                        {% endif %}
+                        {% for num in products_page.paginator.page_range %}
+                            <li class="page-item {% if products_page.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+                        {% if products_page.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ products_page.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                {% else %}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">No products found. <a href="{% url 'core:home' %}">Clear filters</a> or <a href="/admin/products/product/add/">add some!</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Newsletter Footer (Placeholder) -->
+<div class="bg-light py-4 mt-5">
+    <div class="container text-center">
+        <h5>Stay Updated</h5>
+        <p>Subscribe for promotions and new arrivals.</p>
+        <form class="row justify-content-center">
+            <div class="col-md-4">
+                <input type="email" class="form-control" placeholder="Your email">
+                <button class="btn btn-primary mt-2 w-100">Subscribe</button>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

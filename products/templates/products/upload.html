@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Product{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h2>Upload New Product</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">{{ form.as_p }}</div>
+            <div class="col-md-6">
+                <h5>Attributes</h5>
+                {{ formset.management_form }}
+                {% for form in formset %}
+                <div class="row mb-2">
+                    <div class="col">{{ form.name }}</div>
+                    <div class="col">{{ form.value }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload Product</button>
+    </form>
+</div>
+{% endblock %}
