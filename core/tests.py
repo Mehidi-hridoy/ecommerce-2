@@ -2,9 +2,14 @@ from django.test import TestCase
 
 # Create your tests here.
 """
-git init
+
+
 git add .
-git commit -m "first commit"
+git commit -m "Initial commit - pushed ecommerce project"
+git push -u origin main
+
+
+
 git remote add origin
 git push -u origin master
 
