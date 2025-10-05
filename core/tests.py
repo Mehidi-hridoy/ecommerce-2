@@ -6,7 +6,7 @@ from django.test import TestCase
 
 git add .
 git commit -m "Initial commit - pushed ecommerce project"
-git push -u origin main
+git push -u origin master
 
 
 
